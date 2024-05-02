@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ChildControlApp</string>
+    <string name="accessibility_service_description">accessibility service implementation to return the device user to home when blocking condition is triggered</string>
+</resources>
