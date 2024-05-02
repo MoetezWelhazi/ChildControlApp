@@ -1,6 +1,5 @@
 package com.IDL2.childcontrolapp;
 
-import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,7 +13,7 @@ public class BootReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             // Start your service when device boots up
             Intent serviceIntent = new Intent(context, BackgroundBlockingService.class);
-            Log.d(TAG, "BackgroundBlockingService Service started!");
+            Log.d("BootReceiver", "BackgroundBlockingService Service started!");
             context.startService(serviceIntent);
         }
     }

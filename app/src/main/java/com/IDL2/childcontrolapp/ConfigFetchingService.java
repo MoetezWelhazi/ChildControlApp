@@ -1,41 +1,69 @@
 package com.IDL2.childcontrolapp;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-
+import android.util.Log;
 import androidx.annotation.Nullable;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import java.util.Map;
 
-import java.util.List;
-
-public class ConfigFetchingService extends IntentService {
+public class ConfigFetchingService extends Service {
 
     private LocalStorage localStorage;
 
+    private DatabaseReference databaseReference;
+
+    private ValueEventListener valueEventListener;
+
     public ConfigFetchingService() {
-        super("ConfigFetchingService");
+        super();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         localStorage = new LocalStorage(this); // Initialize the LocalStorage instance
+        databaseReference = FirebaseDatabase.getInstance().getReference("app_config");
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Map<String,Long> appMap = dataSnapshot.getValue(Map.class);
+                    localStorage.saveMap(appMap);
+                }
+                else Log.d("ConfigFetchingService", "No data available!");
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Handle error
+                Log.e("ConfigFetchingService", "Error: " + error.getMessage());
+            }
+        };
+        databaseReference.addValueEventListener(valueEventListener);
     }
-
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        // Fetch the list of app names from the server
-        List<String> appNames = fetchAppNamesFromServer();
-
-        // Store the list of app names locally (e.g., in SharedPreferences or a local database)
-        saveAppNamesLocally(appNames);
+    public void onDestroy() {
+        super.onDestroy();
+        databaseReference.removeEventListener(valueEventListener);
     }
 
-    private void saveAppNamesLocally(List<String> appNames) {
-    }
-
-    private List<String> fetchAppNamesFromServer() {
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
         return null;
     }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // Do other work here...
+
+        return START_STICKY;
+    }
+
 }
