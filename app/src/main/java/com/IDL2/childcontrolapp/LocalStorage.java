@@ -2,6 +2,7 @@ package com.IDL2.childcontrolapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -28,35 +29,15 @@ public class LocalStorage {
         gson = new Gson();
     }
 
-    public void saveAppNames(List<String> appNames) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putStringSet(KEY_APP_NAMES, new HashSet<>(appNames));
-        editor.apply();
-    }
-
-    public List<String> getAppNames() {
-        return new ArrayList<>(sharedPreferences.getStringSet(KEY_APP_NAMES, new HashSet<>()));
-    }
-
-    public void saveUUID(String uuid) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_UUID, uuid);
-        editor.apply();
-    }
-
-    public String getUUID() {
-        return sharedPreferences.getString(KEY_UUID, null);
-    }
-
     public void saveMap(Map<String, Long> map) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String mapJson = gson.toJson(map);
-        editor.putString(KEY_MAP, mapJson);
+        editor.putString(KEY_MAP, mapJson); Log.d("LocalStorage", mapJson);
         editor.apply();
     }
 
     public Map<String, Long> getMap() {
-        String mapJson = sharedPreferences.getString(KEY_MAP, null);
+        String mapJson = sharedPreferences.getString(KEY_MAP, null); Log.d("LocalStorage", mapJson.toString());
         if (mapJson != null) {
             Type type = new TypeToken<Map<String, Long>>(){}.getType();
             return gson.fromJson(mapJson, type);

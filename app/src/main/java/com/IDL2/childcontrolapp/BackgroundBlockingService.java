@@ -36,12 +36,13 @@ public class BackgroundBlockingService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         // Check if the event corresponds to a foreground application change
-        if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            Log.d("BlockingService", "Accessibility event triggered");
             // Get the package name of the current foreground application
             String packageName = event.getPackageName().toString();
 
             // Retrieve the list of application names and usage time from local storage
             Map<String, Long> appData = localStorage.getMap();
+            Log.d("BlockingService", appData.toString());
 
             // Check if the current hour is later than the bedtime key value in the list
             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -55,7 +56,6 @@ public class BackgroundBlockingService extends AccessibilityService {
                 Log.d("BlockingService", "Allowed usage time for "+ packageName +" Reached!");
                 performCloseAction();
             }
-        }
     }
 
     private boolean meetsUsageTimeCriteria(String packageName, long usageCap) {

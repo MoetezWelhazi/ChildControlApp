@@ -12,6 +12,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigFetchingService extends Service {
@@ -30,12 +32,24 @@ public class ConfigFetchingService extends Service {
     public void onCreate() {
         super.onCreate();
         localStorage = new LocalStorage(this); // Initialize the LocalStorage instance
-        databaseReference = FirebaseDatabase.getInstance().getReference("app_config");
+        databaseReference = FirebaseDatabase.getInstance("https://control-app-auth-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     Map<String,Long> appMap = dataSnapshot.getValue(Map.class);
+                    Map<String, Long> modifiedMap = new HashMap<>();
+                    for (Map.Entry<String, Long> entry : appMap.entrySet()) {
+                        String key = entry.getKey();
+                        switch (key) {
+                            case "Youtube": key = "com.google.android.youtube"; break;
+                            case "Twitch": key = "tv.twitch.android.app"; break;
+                            case "Facebook": key = "com.facebook.katana"; break;
+                            case "Jetpack": key = "com.halfbrick.jetpackjoyride"; break;
+                        }
+                        modifiedMap.put(key, entry.getValue());
+                    }
+                    Log.d("ConfigFetchingService", modifiedMap.toString());
                     localStorage.saveMap(appMap);
                 }
                 else Log.d("ConfigFetchingService", "No data available!");
