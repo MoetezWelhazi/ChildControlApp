@@ -1,10 +1,12 @@
 package com.IDL2.childcontrolapp;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -25,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
@@ -52,18 +56,24 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
         // Get application permissions
         String[] permissions = getManifestPermissions(this);
         List<String> permissionsToRequest = new ArrayList<>();
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 // Permission is not granted, add it to the list to request
-                permissionsToRequest.add(permission);
+                Log.d("LoginActivity", "Permission: "+ permission +" not granted!");
+                if (permission.equals(android.Manifest.permission.PACKAGE_USAGE_STATS))
+                    startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+                else
+                    permissionsToRequest.add(permission);
             }
         }
         // Request permissions if any are missing
         if (!permissionsToRequest.isEmpty()) {
             String[] permissionsArray = permissionsToRequest.toArray(new String[0]);
+            Log.d("LoginActivity", "Requesting permissions: " + Arrays.toString(permissionsArray) + "!");
             ActivityCompat.requestPermissions(this, permissionsArray, PERMISSION_REQUEST_CODE);
         }
         EdgeToEdge.enable(this);
@@ -96,14 +106,14 @@ public class LoginActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
-                                    Toast.makeText(LoginActivity.this, "Authentication Successful.",
+                                    Toast.makeText(LoginActivity.this, "Config Resync Successful.",
                                             Toast.LENGTH_SHORT).show();
                                     Intent serviceIntent = new Intent(LoginActivity.this, ConfigFetchingService.class);
-                                    Log.d("BootReceiver", "BackgroundBlockingService Service started!");
+                                    Log.d("LoginActivity", "Starting the ConfigFetchingService!");
                                     LoginActivity.this.startService(serviceIntent);
                                 } else {
                                     // If sign in fails, display a message to the user.
-                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.makeText(LoginActivity.this, "Config Resync failed.",
                                             Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -144,4 +154,5 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
+
 }

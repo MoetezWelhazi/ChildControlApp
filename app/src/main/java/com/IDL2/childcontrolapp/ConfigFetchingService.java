@@ -4,6 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,7 +33,7 @@ public class ConfigFetchingService extends Service {
         databaseReference = FirebaseDatabase.getInstance().getReference("app_config");
         valueEventListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     Map<String,Long> appMap = dataSnapshot.getValue(Map.class);
                     localStorage.saveMap(appMap);
@@ -39,7 +41,7 @@ public class ConfigFetchingService extends Service {
                 else Log.d("ConfigFetchingService", "No data available!");
             }
             @Override
-            public void onCancelled(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 // Handle error
                 Log.e("ConfigFetchingService", "Error: " + error.getMessage());
             }
